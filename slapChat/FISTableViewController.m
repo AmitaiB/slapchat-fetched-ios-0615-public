@@ -78,6 +78,41 @@
 
 #pragma mark - NSFetchedResultsControllerDelegate methods
 
+    // We override the getter.
+-(NSFetchedResultsController *)fetchedResultsController
+{
+        // If the controller is already set up, return it and grab a beer.
+    if (_fetchedResultsController != nil) {
+        return _fetchedResultsController;
+    }
+//    FRC will need to be associated with a fetch request:
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Message"];
+    
+    NSManagedObjectContext *moc = self.store.managedObjectContext;
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Message" inManagedObjectContext:moc];
+    fetchRequest.entity = entity;
+    fetchRequest.fetchBatchSize = 20;
+    
+    NSSortDescriptor *chronoSort = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+    fetchRequest.sortDescriptors = @[chronoSort];
+    
+        // With our fetchRequest in hand, the FRC can be initialized.
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:moc sectionNameKeyPath:@"createdAt" cacheName:nil];
+    
+    aFetchedResultsController.delegate = self;
+    self.fetchedResultsController = aFetchedResultsController;
+    
+        // With the FRC in hand, we can execute the fetch and expect to see the results.
+    NSError *error = nil;
+    if (![self.fetchedResultsController performFetch:&error]) {
+        NSLog(@"Error! %@, %@", error, [error userInfo]);
+        abort();
+    }
+    
+    return _fetchedResultsController;
+}
+
+
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView beginUpdates];
 }
