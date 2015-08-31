@@ -53,14 +53,18 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 1;
+    return [self.fetchedResultsController sections].count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // Return the number of rows in the section.
+    // Return the number of rows in the section. Use the standard(?) method of accessing section info from FRC-sectioninfo protocol.
+//    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
+//    return [sectionInfo numberOfObjects];
     return [self.store.messages count];
 }
+
+
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
