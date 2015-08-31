@@ -10,10 +10,11 @@
 #import "FISDataStore.h"
 
 
-@interface FISTableViewController : UITableViewController
+@interface FISTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
 
 
 @property (strong, nonatomic) NSArray *managedMessageObjects;
 @property (strong, nonatomic) FISDataStore *store;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
 @end
