@@ -10,6 +10,7 @@
 #import "Message.h"
 
 @interface FISTableViewController ()
+- (IBAction)addButtonTapped:(id)sender;
 
 @end
 
@@ -137,5 +138,12 @@
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView endUpdates];
+}
+- (IBAction)addButtonTapped:(id)sender {
+    Message *newTimestamp = [Message new];
+    newTimestamp.content = [NSString stringWithFormat:@"Message %@", @""];
+    newTimestamp.createdAt = [NSDate date];
+    
+    
 }
 @end
