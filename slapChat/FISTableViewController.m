@@ -140,9 +140,12 @@
     [self.tableView endUpdates];
 }
 - (IBAction)addButtonTapped:(id)sender {
-    Message *newTimestamp = [Message new];
-    newTimestamp.content = [NSString stringWithFormat:@"Message %@", @""];
+    Message *newTimestamp = [NSEntityDescription insertNewObjectForEntityForName:@"Message" inManagedObjectContext:self.store.managedObjectContext];
+    NSUInteger currentMessageCount = self.store.messages.count;
+    newTimestamp.content = [NSString stringWithFormat:@"Message %lu", currentMessageCount + 1];
     newTimestamp.createdAt = [NSDate date];
+    
+    [self.store saveContext];
     
     
 }
