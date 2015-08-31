@@ -207,6 +207,11 @@
 
 - (IBAction)addButtonTapped:(id)sender {
     Message *newTimestamp = [NSEntityDescription insertNewObjectForEntityForName:@"Message" inManagedObjectContext:self.store.managedObjectContext];
+        //get a new object into an immutable array....
+//    NSMutableArray *temp = [NSMutableArray arrayWithArray:self.store.messages];
+//    [temp addObject:newTimestamp];
+//    self.store.messages = temp;
+    
     NSUInteger currentMessageCount = self.store.messages.count;
     newTimestamp.content = [NSString stringWithFormat:@"Message %lu", currentMessageCount + 1];
     newTimestamp.createdAt = [NSDate date];
