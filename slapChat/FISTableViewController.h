@@ -10,7 +10,7 @@
 #import "FISDataStore.h"
 
 
-@interface FISTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
+@interface FISTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, NSFetchedResultsSectionInfo>
 
 
 @property (strong, nonatomic) NSArray *managedMessageObjects;

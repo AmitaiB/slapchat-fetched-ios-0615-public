@@ -59,12 +59,12 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section. Use the standard(?) method of accessing section info from FRC-sectioninfo protocol.
-//    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
-//    return [sectionInfo numberOfObjects];
-    return [self.store.messages count];
+    NSArray *sections = self.fetchedResultsController.sections;
+    id <NSFetchedResultsSectionInfo> sectionInfo = [sections objectAtIndex:section];
+    return [sectionInfo numberOfObjects];
+    
+//    return [self.store.messages count];
 }
-
-
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -80,7 +80,9 @@
     return cell;
 }
 
-#pragma mark - NSFetchedResultsControllerDelegate methods
+
+
+#pragma mark - NSFetchedResultsController setup
 
     // We override the getter.
 -(NSFetchedResultsController *)fetchedResultsController
@@ -106,7 +108,7 @@
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
     
-        // With the FRC in hand, we can execute the fetch and expect to see the results.
+        // With the FRC in hand, we can actually execute the fetch.
     NSError *error = nil;
     if (![self.fetchedResultsController performFetch:&error]) {
         NSLog(@"Error! %@, %@", error, [error userInfo]);
@@ -114,13 +116,31 @@
     }
     
     return _fetchedResultsController;
+        //With that set up, it's time to implement the Delegate Protocol.
 }
 
+#pragma mark - NSFetchedResultsControllerDelegate methods
 
+    //These two methods allow batching updates, instead of with every granular change. Simple.
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView beginUpdates];
 }
 
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+    [self.tableView endUpdates];
+}
+
+/**
+ *  Not so simple.
+ *
+ *  @param controller   NSFetchedResultsController instance.
+ *  @param anObject     NSManagedObject instance that changed.
+ *  @param indexPath    the *current* index path of the record in the fetched results controller.
+ *  @param type         the type of change, that is, *insert*, *update*, or *delete*.
+ *  @param newIndexPath the new index path of the record in the fetched results controller, *after* the change.
+ 
+ Note: These are not the tableview's indexPaths. See the delegate docs!
+ */
 - (void)controller:(NSFetchedResultsController *)controller
    didChangeObject:(id)anObject
        atIndexPath:(NSIndexPath *)indexPath
@@ -140,7 +160,12 @@
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                              withRowAnimation:UITableViewRowAnimationFade];
             break;
-
+            /**
+             *  Why not:
+             [self configureCell:[tableView cellForRowAtIndexPath:indexPath]
+             atIndexPath:indexPath]; instead of reloadRows?
+             ???
+             */
         case NSFetchedResultsChangeUpdate:
             [tableView reloadRowsAtIndexPaths:@[indexPath]
                              withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -172,12 +197,14 @@
             [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex]
                           withRowAnimation:UITableViewRowAnimationFade];
             break;
+            default:
+            NSLog(@"Did something go wrong??");
+            break;
     }
 }
 
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
-    [self.tableView endUpdates];
-}
+#pragma mark
+
 - (IBAction)addButtonTapped:(id)sender {
     Message *newTimestamp = [NSEntityDescription insertNewObjectForEntityForName:@"Message" inManagedObjectContext:self.store.managedObjectContext];
     NSUInteger currentMessageCount = self.store.messages.count;
